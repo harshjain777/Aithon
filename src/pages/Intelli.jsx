@@ -48,7 +48,7 @@ export default function Intelli() {
         },
         {
           headers: {
-            Authorization: `Bearer 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`, // Use environment variable
+            Authorization: `Bearer `, // Use environment variable
             "Content-Type": "application/json",
           },
         }
