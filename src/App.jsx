@@ -5,28 +5,21 @@ import { Analytics } from './components/Analytics';
 import { ChatMessage } from './components/ChatMessage';
 import { cn } from './lib/utils';
 
-type Message = {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-};
-
 export default function App() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     const userMessage = {
       id: crypto.randomUUID(),
       content: input,
-      role: 'user' as const,
+      role: 'user',
       timestamp: new Date()
     };
 
@@ -38,7 +31,7 @@ export default function App() {
       const assistantMessage = {
         id: crypto.randomUUID(),
         content: 'Thank you for your message. I am processing your request.',
-        role: 'assistant' as const,
+        role: 'assistant',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, assistantMessage]);

@@ -1,18 +1,7 @@
 import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-type Message = {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-};
-
-type Props = {
-  message: Message;
-};
-
-export function ChatMessage({ message }: Props) {
+export function ChatMessage({ message }) {
   const isUser = message.role === 'user';
 
   return (
@@ -37,7 +26,7 @@ export function ChatMessage({ message }: Props) {
         <div className={`text-xs mt-1 ${
           isUser ? 'text-blue-200' : 'text-gray-500'
         }`}>
-          {message.timestamp.toLocaleTimeString()}
+          {new Date(message.timestamp).toLocaleTimeString()}
         </div>
       </div>
     </div>
