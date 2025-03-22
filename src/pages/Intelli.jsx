@@ -11,7 +11,6 @@ import {
 import { Analytics } from "../components/Analytics";
 import { ChatMessage } from "../components/ChatMessage";
 import { cn } from "../lib/utils";
-import axios from "axios";
 
 export default function Intelli() {
   const [messages, setMessages] = useState([]);
@@ -19,61 +18,54 @@ export default function Intelli() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const getStaticResponse = (userInput) => {
+    const lowerInput = userInput.toLowerCase();
+    
+    const responses = {
+      hello: "Hello! How can I assist you today?",
+      help: "Here are some things I can help with: \n1. Account issues \n2. Technical support \n3. General questions",
+      features: "Our platform offers: \n- Real-time analytics \n- AI-powered insights \n- Custom reporting",
+      goodbye: "Goodbye! Feel free to reach out again if you need more help.",
+      default: "I'm here to help! Could you please clarify your question?"
+    };
+
+    switch(true) {
+      case lowerInput.includes('hello'):
+        return responses.hello;
+      case lowerInput.includes('help'):
+        return responses.help;
+      case lowerInput.includes('feature'):
+        return responses.features;
+      case lowerInput.includes('goodbye'):
+        return responses.goodbye;
+      default:
+        return responses.default;
+    }
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input.trim() || loading) return;
+    if (!input.trim()) return;
 
+    // Add user message
     const userMessage = {
-      id: Date.now(), // Changed from crypto.randomUUID() for better browser support
+      id: Date.now(),
       content: input,
       role: "user",
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Generate static response
+    const botResponse = {
+      id: Date.now() + 1,
+      content: getStaticResponse(input),
+      role: "assistant",
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage, botResponse]);
     setInput("");
-    setLoading(true);
-
-    try {
-      const response = await axios.post(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: input },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer `, // Use environment variable
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const assistantMessage = {
-        id: Date.now(),
-        content: response.data.choices[0].message.content,
-        role: "assistant",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("API Error:", error);
-      const errorMessage = {
-        id: Date.now(),
-        content: "Sorry, I'm having trouble connecting. Please try again later.",
-        role: "assistant",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -129,12 +121,6 @@ export default function Intelli() {
                   {messages.map((message) => (
                     <ChatMessage key={message.id} message={message} />
                   ))}
-                  {loading && (
-                    <div className="flex items-center justify-center space-x-2 text-gray-500">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                      <span>Thinking...</span>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -147,12 +133,10 @@ export default function Intelli() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
                     className="flex-1 rounded-lg border border-gray-200 px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    disabled={loading}
                   />
                   <button
                     type="submit"
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                    disabled={loading}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                   >
                     <Send className="h-5 w-5" />
                   </button>
